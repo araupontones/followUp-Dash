@@ -9,24 +9,29 @@ qa_data <- import_data(dir_data)
 
 
 
-  
+#------------------------------------
+
+
 
 
 
 
 
 ui <- fluidPage(
-navbarPage("Follow UP",
-           
-           tabPanel("Provincias",
-                    DT::DTOutput("table_provincias"),
-                    plotOutput("chart_provincias"),
-                    
-                    
-                    ),
-           tabPanel("Cidades"),
-           tabPanel("Entrevistas")
-           )  
+  navbarPage("Follow UP",
+             
+             tabPanel("Provincias",
+                      DT::DTOutput("table_provincias"),
+                      plotOutput("chart_provincias"),
+                      
+                      
+             ),
+             tabPanel("Cidades",
+                      DT::DTOutput("table_cidades"),
+                      plotOutput("chart_cidades"),),
+             tabPanel("Entrevistas",
+                      DT::DTOutput("table_interviews"),)
+  )  
   
   
 )
@@ -34,54 +39,85 @@ navbarPage("Follow UP",
 server <- function(input, output, session) {
   
   output$table_provincias <- DT::renderDataTable(
+    datatable(
+      
+      qa_data$summary_provincias, 
+      rownames = F
+      
+    ) %>%
+      formatStyle(
+        columns = 'status',
+        backgroundColor = styleEqual("CHECK!", color_rejected),
+        color = styleEqual("CHECK!", "white")
+      )
     
-    qa_data$summary_provincias
   )
   
   output$chart_provincias <- renderPlot({
     
     
     
-    data_plot <- qa_data$summary_provincias %>%
-      select(-status, - sampled, - Approved) %>%
-      pivot_longer(cols = -provincia,
-                   names_to = "Status") %>%
-      group_by(provincia) %>%
-      mutate(Total = sum(value),
-             Perc = value / Total) %>%
-      ungroup() %>%
-      mutate(Status = factor(Status,
-                             levels = rev(c("Completas", "Nao conseguimos", "Rejected", "Sim visitar")),
-                             ordered = T)
-      )
+    data_plot <- create_data_plot(qa_data$summary_provincias,
+                             cols_pivot = c(provincia),
+                             provincia)
     
     
-    data_plot %>%
-      ggplot(aes(y = provincia,
-                 x = Perc, 
-                 fill = Status))+
-      geom_col(width = .8) +
-      scale_fill_manual(name = "Status",
-                        values = rev(c(color_simVisitar, color_rejected, color_naoConseguimos, color_completed)),
-                        breaks = c("Completas", "Nao conseguimos", "Rejected", "Sim visitar")
-      ) +
-      scale_x_continuous(labels = function(x) c(seq(0,75, 25), paste0(100, "%"))) +
-      labs(y = "",
-           x = "From sampled") +
-      
-      
-      theme(legend.position = 'top',
-            panel.background = element_blank(),
-            axis.ticks = element_blank(),
-            panel.grid.major.x = element_line("#CCCCCC", linetype = "dashed"),
-            panel.grid.major.y = element_blank(),
-            panel.grid.minor.x = element_blank(),
-            panel.ontop = TRUE)
+    plot_progress(data_plot,
+                  y_var = provincia)
+    
     
     
     
   }, res = 96)
   
+  output$table_cidades <- DT::renderDataTable(
+    datatable(
+      qa_data$summary_cidades, 
+      options = list( pageLength = 23),
+      rownames = F
+      
+    ) %>%
+      formatStyle(
+        columns = 'status',
+        backgroundColor = styleEqual("CHECK!", color_rejected),
+        color = styleEqual("CHECK!", "white")
+      )
+    
+  )
+  
+  
+  output$chart_cidades <- renderPlot({
+    
+    data_plot <- create_data_plot(qa_data$summary_cidades,
+                                  cols_pivot = c(provincia, cidade),
+                                  provincia, cidade)
+    
+    
+    plot_progress(data_plot,
+                  y_var = cidade)
+    
+    
+  })
+  
+  output$table_interviews <- DT::renderDataTable(
+    datatable(
+      qa_data$interviews,
+      rownames = F,
+      escape = F,
+      filter = 'top',
+      options = list( pageLength = 100)
+      
+    ) %>%
+    formatStyle('Management', 
+                target = 'row',
+                backgroundColor = styleEqual(c("APPROVED", "REJECTED", "Sin visitar")
+                                             , c(color_approved, color_rejected, color_naoConseguimos)),
+                color = styleEqual(c("APPROVED", "REJECTED", "Sin visitar")
+                                                      , c("black", "white", "black"))
+    )
+   
+    
+  )
 }
 
 shinyApp(ui, server)
