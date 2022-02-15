@@ -4,8 +4,7 @@ library(DT)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
-#read data 
-qa_data <- import_data(dir_data)
+
 
 
 
@@ -37,6 +36,9 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
+  
+  #read data 
+  qa_data <- import_data(dir_data)
   
   output$table_provincias <- DT::renderDataTable(
     datatable(
