@@ -37,7 +37,7 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   
-  #read data 
+  #read data  --------------------------
   qa_data <- import_data(dir_data)
   
   output$table_provincias <- DT::renderDataTable(
@@ -60,8 +60,8 @@ server <- function(input, output, session) {
     
     
     data_plot <- create_data_plot(qa_data$summary_provincias,
-                             cols_pivot = c(provincia),
-                             provincia)
+                                  cols_pivot = c(provincia),
+                                  provincia)
     
     
     plot_progress(data_plot,
@@ -71,6 +71,20 @@ server <- function(input, output, session) {
     
     
   }, res = 96)
+  
+  output$chart_cidades <- renderPlot({
+    
+    data_plot <- create_data_plot(qa_data$summary_cidades,
+                                  cols_pivot = c(provincia, cidade),
+                                  provincia, cidade)
+    
+    
+    plot_progress(data_plot,
+                  y_var = cidade)
+    
+    
+  },  res = 96)
+  
   
   output$table_cidades <- DT::renderDataTable(
     datatable(
@@ -87,37 +101,30 @@ server <- function(input, output, session) {
     
   )
   
+  #output$tbl_c = DT::renderDataTable(datatable(data,options=list(search=list(search=iconv(input$tag,to = "UTF-8"),regex=T))))
   
-  output$chart_cidades <- renderPlot({
-    
-    data_plot <- create_data_plot(qa_data$summary_cidades,
-                                  cols_pivot = c(provincia, cidade),
-                                  provincia, cidade)
-    
-    
-    plot_progress(data_plot,
-                  y_var = cidade)
-    
-    
-  })
+  
   
   output$table_interviews <- DT::renderDataTable(
     datatable(
-      qa_data$interviews,
+      qa_data$interviews %>%
+        mutate(across(c(cidade, bairro, url), function(x)str_replace(x, "ç", "c")),
+               url = glue::glue('<a href="http://my.muvasurveys.com/Interview/Review/{interview__id}"target="_blank">Link</a>')) %>%
+        select(-interview__id),
       rownames = F,
       escape = F,
-      filter = 'top',
-      options = list( pageLength = 100)
-      
-    ) %>%
-    formatStyle('Management', 
-                target = 'row',
-                backgroundColor = styleEqual(c("APPROVED", "REJECTED", "Sin visitar")
-                                             , c(color_approved, color_rejected, color_naoConseguimos)),
-                color = styleEqual(c("APPROVED", "REJECTED", "Sin visitar")
-                                                      , c("black", "white", "black"))
-    )
-   
+      options = list( pageLength = 100
+                      
+                      
+      )) %>%
+      formatStyle('Management', 
+                  target = 'row',
+                  backgroundColor = styleEqual(c("APPROVED", "REJECTED", "Sin visitar")
+                                               , c(color_approved, color_rejected, color_naoConseguimos)),
+                  color = styleEqual(c("APPROVED", "REJECTED", "Sin visitar")
+                                     , c("black", "white", "black"))
+      )
+    
     
   )
 }
