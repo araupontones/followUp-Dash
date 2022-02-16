@@ -1,6 +1,20 @@
 
+#' get last update time
+#' @param  target_file file to check last modification
 
-#' Import data from QA directory
+get_last_update <- function(target_file) {
+  
+  file_times <- file.info(target_file)
+  fecha <- format(file_times$mtime[1], "%d %B %Y às %H:%M")
+  
+  last_update <- paste("Última atualização:", fecha)
+  
+  return(last_update)
+}
+
+
+
+#' Import data from QA directory ==============================================
 #' @param dir_data path to dashboard data in QA directory
 import_data <- function(dir_data = dir_data){
   

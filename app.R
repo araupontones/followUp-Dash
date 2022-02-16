@@ -7,14 +7,7 @@ library(ggplot2)
 
 
 
-
 #------------------------------------
-
-
-
-
-
-
 
 ui <- fluidPage(
   
@@ -23,6 +16,8 @@ ui <- fluidPage(
     shiny::tags$link(rel = "icon", href ="imgs/favicon16.png?v=2"),
     tags$title("QA Follow-Up")
   ),
+  
+  tags$div(uiOutput("last_modification")),
   
   navbarPage("Follow UP",
              
@@ -46,6 +41,15 @@ server <- function(input, output, session) {
   
   #read data  --------------------------
   qa_data <- import_data(dir_data)
+  
+  output$last_modification <- renderUI({
+    
+    last_update <- get_last_update(file.path(dir_data,'interviews.csv'))
+    
+    last_update
+    
+    
+  })
   
   output$table_provincias <- DT::renderDataTable(
     datatable(
