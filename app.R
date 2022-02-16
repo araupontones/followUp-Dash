@@ -17,6 +17,13 @@ library(ggplot2)
 
 
 ui <- fluidPage(
+  
+  tags$head(
+    
+    shiny::tags$link(rel = "icon", href ="imgs/favicon16.png?v=2"),
+    tags$title("QA Follow-Up")
+  ),
+  
   navbarPage("Follow UP",
              
              tabPanel("Provincias",
