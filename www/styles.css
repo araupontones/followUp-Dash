@@ -1,0 +1,56 @@
+body{
+  margin: 0 40px;
+  font-family: 'Roboto';
+}
+
+
+
+table{
+  width: 80% !important;
+  font-family: 'IBM Plex Mono';
+}
+
+tbody td{
+  border-top: 1px solid white !important;
+}
+.container-header{
+  position: relative;
+  height: 60px;
+}
+
+
+.logo{
+  position: absolute;
+  left: 20px;
+}
+
+.text_update{
+position: absolute;
+right: 30px;
+top: 40px;
+
+
+}
+
+.navbar{
+  background-color: white;
+
+  border-bottom: 1rem dotted #99E5DC;
+
+}
+
+.navbar-nav>li>a{
+  color:blue !important;
+}
+
+.navbar-nav>li>a{
+  color:#99E5DC !important;
+}
+
+
+.navbar-nav>.active>a{
+  background-color: #99E5DC !important;
+  color: #F77333 !important;
+  font-weight: bold; !important;
+  margin-bottom: 5px;
+}

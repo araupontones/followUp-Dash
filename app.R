@@ -12,18 +12,25 @@ library(ggplot2)
 ui <- fluidPage(
   
   tags$head(
+    tags$link(rel="stylesheet", href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300&family=Lato:wght@100;300;700&display=swap"),
+    tags$link( href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap"),
     
+    tags$link(rel="stylesheet", href="styles.css"),
     shiny::tags$link(rel = "icon", href ="imgs/favicon16.png?v=2"),
     tags$title("QA Follow-Up")
   ),
   
-  tags$div(uiOutput("last_modification")),
+  tags$div(class = "container-header",
+    
+    tags$img(src = "imgs/logo-1.png", class = "logo"),
+    uiOutput("last_modification", class = "text_update")
+    ),
   
-  navbarPage("Follow UP",
+  navbarPage("Follow UP Survey",
              
              tabPanel("Provincias",
                       DT::DTOutput("table_provincias"),
-                      plotOutput("chart_provincias"),
+                      plotOutput("chart_provincias", width = "90%"),
                       
                       
              ),
@@ -55,6 +62,13 @@ server <- function(input, output, session) {
     datatable(
       
       qa_data$summary_provincias, 
+      options = list(pageLength = 12,
+                     dom = 't',
+                     columnDefs = list(list(className = 'dt-center', targets = 2:7),
+                                       list(width = '50px', targets = c(2:7)),
+                                       list(width = '1px', targets = c(0)),
+                                       list(width = '100px', targets = c(1))
+      )),
       rownames = F
       
     ) %>%
