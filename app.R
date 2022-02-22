@@ -135,7 +135,8 @@ server <- function(input, output, session) {
       qa_data$interviews %>%
         mutate(across(c(cidade, bairro, url), function(x)str_replace(x, "ç", "c")),
                url = glue::glue('<a href="http://my.muvasurveys.com/Interview/Review/{interview__id}"target="_blank">Link</a>')) %>%
-        select(-interview__id),
+        select(-interview__id) %>%
+        relocate(inquiridor, participante, .after = ID_participant),
       rownames = F,
       escape = F,
       options = list( pageLength = 100

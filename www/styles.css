@@ -28,6 +28,7 @@ tbody td{
 position: absolute;
 right: 30px;
 top: 40px;
+color: #40514E;
 
 
 }
@@ -39,9 +40,7 @@ top: 40px;
 
 }
 
-.navbar-nav>li>a{
-  color:blue !important;
-}
+
 
 .navbar-nav>li>a{
   color:#99E5DC !important;
