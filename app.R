@@ -36,7 +36,8 @@ ui <- fluidPage(
              ),
              tabPanel("Cidades",
                       DT::DTOutput("table_cidades"),
-                      plotOutput("chart_cidades"),),
+                      plotOutput("chart_cidades", height = 500)
+                      ),
              tabPanel("Entrevistas",
                       DT::DTOutput("table_interviews"),)
   )  
@@ -97,6 +98,7 @@ server <- function(input, output, session) {
       mutate(provincia = factor(provincia,
                                 levels = rev(c(sort(provs[-which(provs=="Total")]), "Total"))))
     
+    
     plot_progress(data_plot,
                   y_var = provincia)
     
@@ -118,6 +120,7 @@ server <- function(input, output, session) {
       mutate(cidade = factor(cidade,
                                 levels = rev(c(sort(cidades[-which(cidades=="Total")]), "Total"))))
     
+   
     plot_progress(data_plot,
                   y_var = cidade)
     

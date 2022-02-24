@@ -61,11 +61,12 @@ create_data_plot <- function(.data,
     pivot_longer(cols = -{{cols_pivot}},
                  names_to = "Status") %>%
     group_by(...) %>%
+    filter(Status != "Visitadas") %>%
     mutate(Total = sum(value),
            Perc = value / Total) %>%
     ungroup() %>%
     mutate(Status = factor(Status,
-                           levels = rev(c("Completas", "Nao conseguimos", "Rejected", "Sim visitar")),
+                           levels = rev(c("Completas", "Nao conseguimos", "Revisitando", "Rejected", "Sim visitar")),
                            ordered = T)
     )
   
@@ -93,8 +94,8 @@ plot_progress <- function(.data,
                fill = Status))+
     geom_col(width = .8) +
     scale_fill_manual(name = "Status",
-                      values = rev(c(color_simVisitar, color_rejected, color_naoConseguimos, color_completed)),
-                      breaks = c("Completas", "Nao conseguimos", "Rejected", "Sim visitar")
+                      values = rev(c(color_simVisitar, color_rejected, "pink",color_naoConseguimos, color_completed)),
+                      breaks = c("Completas", "Nao conseguimos","Revisitando", "Rejected", "Sim visitar")
     ) +
     scale_x_continuous(labels = function(x) c(seq(0,75, 25), paste0(100, "%"))) +
     labs(y = "",
