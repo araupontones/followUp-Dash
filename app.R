@@ -83,11 +83,19 @@ server <- function(input, output, session) {
   output$chart_provincias <- renderPlot({
     
     
+   
     
     data_plot <- create_data_plot(qa_data$summary_provincias,
                                   cols_pivot = c(provincia),
-                                  provincia)
+                                  provincia) 
     
+    
+    provs = unique(data_plot$provincia)
+    #print(which(provs=="Total"))
+    
+    data_plot <- data_plot %>%
+      mutate(provincia = factor(provincia,
+                                levels = rev(c(sort(provs[-which(provs=="Total")]), "Total"))))
     
     plot_progress(data_plot,
                   y_var = provincia)
@@ -101,8 +109,14 @@ server <- function(input, output, session) {
     
     data_plot <- create_data_plot(qa_data$summary_cidades,
                                   cols_pivot = c(provincia, cidade),
-                                  provincia, cidade)
+                                  provincia, cidade) %>%
+      mutate(cidade = if_else(str_detect(cidade, "Total"), "Total", cidade))
     
+    cidades = unique(data_plot$cidade)
+   
+    data_plot <- data_plot %>%
+      mutate(cidade = factor(cidade,
+                                levels = rev(c(sort(cidades[-which(cidades=="Total")]), "Total"))))
     
     plot_progress(data_plot,
                   y_var = cidade)
