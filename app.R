@@ -4,9 +4,11 @@ library(DT)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(reactable)
+library(reactablefmtr)
 
-
-
+#install.packages("reactable")
+#install.packages("reactablefmtr")
 #------------------------------------
 
 ui <- fluidPage(
@@ -39,7 +41,11 @@ ui <- fluidPage(
                       plotOutput("chart_cidades", height = 500)
                       ),
              tabPanel("Entrevistas",
-                      DT::DTOutput("table_interviews"),)
+                      DT::DTOutput("table_interviews")
+                      ),
+             tabPanel("Enqueridores",
+                      reactableOutput("table_enqueridores")
+                      )
   )  
   
   
@@ -170,6 +176,58 @@ server <- function(input, output, session) {
     
     
   )
+  
+  
+  output$table_enqueridores <- renderReactable({
+    
+    dataInquiridores <-  qa_data$interviews %>% 
+      filter(inquiridor != "Sin visitar") %>%
+      group_by(inquiridor) %>%
+      summarise(Entrevistas = n(),
+                Completas = sum(status == "COMPLETA-FINAL") / Entrevistas,
+                `Nao conseguidas` = sum(status == "NAO CONSEGUIMOS-FINAL") / Entrevistas,
+                .groups = 'drop'
+                ) %>%
+      mutate(across(c(Completas, `Nao conseguidas`), function(x) round(x,2)))
+    
+    reactable(
+      dataInquiridores,
+      
+      columns = list(
+        
+        Entrevistas = colDef(
+          cell = data_bars(dataInquiridores,
+                           bar_height = 20,
+                           text_color = "white",
+                           text_position = "inside-end",
+                           number_fmt = scales::number)
+        ), 
+        
+        Completas = colDef(
+          cell = data_bars(dataInquiridores,
+                           fill_color = color_approved,
+                           fill_opacity = .8,
+                           text_position = "inside-end",
+                           number_fmt = scales::percent)
+        ), 
+        `Nao conseguidas` = colDef(
+          cell = data_bars(dataInquiridores,
+                           fill_color = color_rejected,
+                           text_color = "white",
+                           text_position = "inside-end",
+                           number_fmt = scales::percent)
+        )
+        
+      ),
+     
+      
+      bordered = T,
+      defaultSorted = list(Entrevistas = "desc"),
+      defaultPageSize = nrow(dataInquiridores)
+      
+    )
+    
+  })
 }
 
 shinyApp(ui, server)
